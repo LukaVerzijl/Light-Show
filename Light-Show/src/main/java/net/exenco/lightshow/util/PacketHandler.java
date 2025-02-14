@@ -6,13 +6,12 @@ import net.minecraft.network.PacketListener;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.server.level.ServerEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import org.bukkit.Location;
 import org.bukkit.Particle;
@@ -138,9 +137,11 @@ public class PacketHandler {
      */
     private List<Packet<? extends PacketListener>> getEntitySpawnPackets(Entity entity) {
         List<Packet<? extends PacketListener>> packetList = new ArrayList<>();
-        packetList.add(new ClientboundAddEntityPacket(entity));
-
-        // If entity has metadata, send packet
+        Packet<? extends PacketListener> spawnPacket = entity.getAddEntityPacket(entity.moonrise$getTrackedEntity().serverEntity);
+        if (spawnPacket != null) {
+            packetList.add(spawnPacket);
+        }
+            // If entity has metadata, send packet
         ClientboundSetEntityDataPacket metadataPacket = getEntityMetadataPacket(entity);
         if (metadataPacket != null) {
             packetList.add(metadataPacket);
@@ -188,15 +189,17 @@ public class PacketHandler {
      */
     private ClientboundTeleportEntityPacket getEntityMovePacket(Entity entity) {
         int entityId = entity.getId();
+        Vec3 position = new Vec3(entity.getX(), entity.getY(), entity.getZ());
         PositionMoveRotation positionMoveRotation = new PositionMoveRotation(
-                entity.getX(), // X position
-                entity.getY(), // Y position
-                entity.getZ(), // Z position
+                position,
+                Vec3.ZERO,
                 entity.getYRot(), // Y rotation
                 entity.getXRot() // X rotation
 
         );
-        return new ClientboundTeleportEntityPacket(entity);
+        Set<Relative> relatives = EnumSet.noneOf(Relative.class);
+
+        return new ClientboundTeleportEntityPacket(entityId,positionMoveRotation, relatives, entity.onGround);
     }
 
     /**
