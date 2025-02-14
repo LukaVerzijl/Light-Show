@@ -7,7 +7,6 @@ import net.minecraft.nbt.TagParser;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -113,10 +112,7 @@ public class ConfigHandler {
     }
 
     public static Material getMaterialFromName(String name) {
-        CompoundTag nbtTagCompound = new CompoundTag();
-        nbtTagCompound.putString("id", name.toLowerCase());
-        nbtTagCompound.putInt("Count", 1);
-        nbtTagCompound.putString("tag", "{}");
-        return CraftItemStack.asBukkitCopy(ItemStack.of(nbtTagCompound)).getType();
+        return Material.matchMaterial(name.toLowerCase());
     }
+
 }

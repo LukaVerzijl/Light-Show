@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,8 +18,8 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.SoundCategory;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
@@ -186,6 +187,15 @@ public class PacketHandler {
      * @return the created {@link ClientboundTeleportEntityPacket} object.
      */
     private ClientboundTeleportEntityPacket getEntityMovePacket(Entity entity) {
+        int entityId = entity.getId();
+        PositionMoveRotation positionMoveRotation = new PositionMoveRotation(
+                entity.getX(), // X position
+                entity.getY(), // Y position
+                entity.getZ(), // Z position
+                entity.getYRot(), // Y rotation
+                entity.getXRot() // X rotation
+
+        );
         return new ClientboundTeleportEntityPacket(entity);
     }
 

@@ -2,8 +2,8 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 
 plugins {
     `java-library`
-    id("io.papermc.paperweight.userdev") version "1.3.8"
-    id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
+    id("io.papermc.paperweight.userdev") version "2.0.0-beta.14"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
 }
 
 group = "net.exenco.lightshow"
@@ -11,7 +11,12 @@ version = "1.2.4"
 description = "Display a Light-Show in Minecraft."
 
 dependencies {
-    paperDevBundle("1.20.1-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+}
+
+java {
+    // Configure the java toolchain. This allows gradle to auto-provision JDK 21 on systems that only have JDK 11 installed for example.
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
 }
 
 tasks {
@@ -22,7 +27,7 @@ tasks {
     compileJava {
         options.encoding = Charsets.UTF_8.name()
 
-        options.release.set(17)
+        options.release.set(21)
     }
     javadoc {
         options.encoding = Charsets.UTF_8.name()
@@ -31,10 +36,10 @@ tasks {
         filteringCharset = Charsets.UTF_8.name()
     }
 }
-
+paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 bukkit {
     main = "net.exenco.lightshow.LightShow"
-    apiVersion = "1.19"
+    apiVersion = "1.21"
     author = "Exenco"
     commands {
         register("show") {
