@@ -5,8 +5,11 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.exenco.lightshow.LightShow;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.ItemStack;
 import org.bukkit.*;
+import org.bukkit.craftbukkit.CraftServer;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -99,20 +102,26 @@ public class ConfigHandler {
         int count = jsonObject.has("Count") ? jsonObject.get("Count").getAsInt() : 1;
         String nbt = jsonObject.has("Nbt") ? jsonObject.get("Nbt").getAsString() : "{}";
         try {
+            MinecraftServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
             CompoundTag itemNbt = TagParser.parseTag(nbt);
 
             CompoundTag nbtTag = new CompoundTag();
             nbtTag.putString("id", item.toLowerCase());
             nbtTag.putInt("Count", count);
             nbtTag.put("tag", itemNbt);
-            return ItemStack.of(nbtTag);
+            return ItemStack.parseOptional(minecraftServer.registryAccess(), nbtTag);
         } catch (CommandSyntaxException e) {
             throw new RuntimeException("Cannot parse item " + count + "x " + item + nbt);
         }
     }
-
     public static Material getMaterialFromName(String name) {
-        return Material.matchMaterial(name.toLowerCase());
+        MinecraftServer minecraftServer = ((CraftServer) Bukkit.getServer()).getServer();
+        CompoundTag nbtTagCompound = new CompoundTag();
+        nbtTagCompound.putString("id", name.toLowerCase());
+        nbtTagCompound.putInt("Count", 1);
+        nbtTagCompound.putString("tag", "{}");
+        return CraftItemStack.asBukkitCopy(
+                ItemStack.parseOptional(minecraftServer.registryAccess(), nbtTagCompound)
+        ).getType();
     }
-
 }
